@@ -1,26 +1,7 @@
 import streamlit as st
-import streamlit.components.v1 as components
 import smtplib
 import ssl
-from email.message import EmailMessage
-
-# --- Bagian 1: Deteksi Tema Otomatis dengan JavaScript ---
-components.html(
-    """
-    <script>
-    const body = window.parent.document.querySelector('body');
-    const theme = body.getAttribute('data-theme');
-    const url = new URL(window.location);
-    url.searchParams.set('theme', theme);
-    window.parent.history.replaceState({}, '', url);
-    </script>
-    """,
-    height=0,
-)
-
-# Mendapatkan tema dari URL parameter
-theme = st.query_params.get("theme", "light")
-
+from typing import Dict, Any
 
 # --- Konfigurasi Halaman & CSS Kustom ---
 st.set_page_config(
@@ -29,49 +10,94 @@ st.set_page_config(
     layout="wide"
 )
 
-st.markdown("""
+# Inisialisasi session state untuk tema jika belum ada
+if 'theme' not in st.session_state:
+    st.session_state.theme = 'light'  # Default theme
+
+# Fungsi untuk mengubah tema
+def toggle_theme():
+    """Mengubah mode tema antara 'light' dan 'dark'."""
+    st.session_state.theme = 'dark' if st.session_state.theme == 'light' else 'light'
+
+# Masukkan CSS ke dalam aplikasi.
+# Tambahkan kelas 'dark-mode' ke body jika tema adalah 'dark'.
+st.markdown(f"""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
     @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css');
 
+    :root {{
+        --background-color: #f0f2f5;
+        --text-color: #333;
+        --card-background: white;
+        --footer-background: #2d3748;
+        --footer-text-color: white;
+        --septem-blue: #38b2ac;
+        --secondary-text-color: #4a5568;
+        --shadow-color-light: rgba(0, 0, 0, 0.1);
+        --shadow-color-dark: rgba(0, 0, 0, 0.05);
+    }}
+
+    .dark-mode {{
+        --background-color: #1a202c;
+        --text-color: #e2e8f0;
+        --card-background: #2d3748;
+        --footer-background: #1a202c;
+        --footer-text-color: #cbd5e0;
+        --septem-blue: #4fd1c5; /* Slightly lighter for dark mode */
+        --secondary-text-color: #a0aec0;
+        --shadow-color-light: rgba(255, 255, 255, 0.1);
+        --shadow-color-dark: rgba(255, 255, 255, 0.05);
+    }}
+
+    /* Terapkan kelas dark-mode secara kondisional */
+    .st-emotion-cache-16txte0 {{
+        background-color: var(--background-color) !important;
+        color: var(--text-color) !important;
+    }}
+    .st-emotion-cache-16txte0 .st-emotion-cache-1f8553m {{
+        background-color: var(--card-background) !important;
+    }}
+    .st-emotion-cache-16txte0 .st-emotion-cache-vj06pl {{
+        background-color: var(--card-background) !important;
+    }}
+
     /* Teks dan Konten Utama */
-    html, body, .st-emotion-cache-16txte0 {
+    html, body, .st-emotion-cache-16txte0 {{
         font-family: 'Inter', sans-serif;
-        background-color: #f0f2f5 !important;
-        color: #333;
+        background-color: var(--background-color) !important;
+        color: var(--text-color);
         text-align: center !important;
-    }
-    
-    .st-emotion-cache-z5fcl4 {
+    }}
+    .st-emotion-cache-z5fcl4 {{
         max-width: 1200px;
         margin: 0 auto;
         padding-right: 2rem;
         padding-left: 2rem;
-    }
-    
-    .text-septem-blue {
-        color: #38b2ac;
-    }
-    .bg-septem-blue {
-        background-color: #38b2ac;
-    }
-    .st-emotion-cache-18ni7ap, .st-emotion-cache-h4xjwx {
+    }}
+    .text-septem-blue {{
+        color: var(--septem-blue);
+    }}
+    .bg-septem-blue {{
+        background-color: var(--septem-blue);
+    }}
+    .st-emotion-cache-18ni7ap, .st-emotion-cache-h4xjwx {{
         padding-top: 0 !important;
         padding-right: 0 !important;
         padding-left: 0 !important;
         padding-bottom: 0 !important;
-    }
+    }}
     
     /* Navbar */
-    .navbar {
+    .navbar {{
         width: 100%;
-        background-color: transparent;
+        background-color: transparent; /* Tetap transparan atau sesuaikan jika perlu */
         box-shadow: none;
         padding: 1rem 2rem;
         display: flex;
         justify-content: center;
-    }
-    .navbar-content {
+    }}
+    .navbar-content {{
         max-width: 1200px;
         width: 100%;
         display: flex;
@@ -79,44 +105,44 @@ st.markdown("""
         align-items: center;
         flex-wrap: wrap; 
         gap: 1rem;
-    }
-    .navbar-logo-container {
+    }}
+    .navbar-logo-container {{
         display: flex;
         align-items: center;
         gap: 0.5rem;
-    }
-    .navbar-logo {
+    }}
+    .navbar-logo {{
         height: 2.5rem;
         width: 2.5rem;
         border-radius: 9999px;
-        background-color: #38b2ac;
+        background-color: var(--septem-blue);
         display: flex;
         align-items: center;
         justify-content: center;
         color: white;
         font-weight: 700;
         font-size: 1.5rem;
-    }
-    .navbar-title {
+    }}
+    .navbar-title {{
         font-size: 1.875rem;
         font-weight: 800;
-        color: #38b2ac;
+        color: var(--septem-blue);
         line-height: 1;
-    }
-    .navbar-title span {
+    }}
+    .navbar-title span {{
         font-weight: 400;
-        color: #4a5568;
+        color: var(--secondary-text-color);
         margin-left: 0.25rem;
-    }
-    .navbar-links {
+    }}
+    .navbar-links {{
         display: flex;
         gap: 2rem;
         flex-wrap: wrap;
         justify-content: center;
-    }
-    .navbar-links .stButton > button {
+    }}
+    .navbar-links .stButton > button {{
         background-color: transparent !important;
-        color: #4a5568 !important;
+        color: var(--secondary-text-color) !important;
         font-weight: 500 !important;
         text-decoration: none !important;
         transition: color 0.3s ease !important;
@@ -125,22 +151,22 @@ st.markdown("""
         box-shadow: none !important;
         min-height: auto !important;
         border-bottom: 2px solid transparent !important;
-    }
-    .navbar-links .stButton > button:hover {
-        color: #38b2ac !important;
-        border-bottom: 2px solid #38b2ac !important;
-    }
-    .navbar-links .stButton > button[aria-selected="true"] {
-        color: #38b2ac !important;
-        border-bottom: 2px solid #38b2ac !important;
-    }
+    }}
+    .navbar-links .stButton > button:hover {{
+        color: var(--septem-blue) !important;
+        border-bottom: 2px solid var(--septem-blue) !important;
+    }}
+    .navbar-links .stButton > button[aria-selected="true"] {{
+        color: var(--septem-blue) !important;
+        border-bottom: 2px solid var(--septem-blue) !important;
+    }}
     
-    .content-container {
+    .content-container {{
         padding-top: 0rem;
-    }
+    }}
 
     /* Hero Section */
-    .hero-section {
+    .hero-section {{
         background-image: url('https://raw.githubusercontent.com/tourandtravel382/tourandtravel/main/images/bromomidnight(group).png');
         background-size: cover;
         background-position: center;
@@ -152,13 +178,13 @@ st.markdown("""
         text-align: center;
         position: relative;
         z-index: 1;
-        color: white;
+        color: white; /* Tetap putih karena overlay */
         padding-top: 4rem;
         border-bottom-left-radius: 50px;
         border-bottom-right-radius: 50px;
         overflow: hidden;
-    }
-    .hero-overlay {
+    }}
+    .hero-overlay {{
         position: absolute;
         top: 0;
         left: 0;
@@ -168,8 +194,8 @@ st.markdown("""
         z-index: -1;
         border-bottom-left-radius: 50px;
         border-bottom-right-radius: 50px;
-    }
-    .hero-content {
+    }}
+    .hero-content {{
         position: relative;
         z-index: 2;
         padding: 2rem;
@@ -178,136 +204,136 @@ st.markdown("""
         display: flex;
         flex-direction: column;
         align-items: center;
-    }
-    .hero-title {
+    }}
+    .hero-title {{
         font-size: 3rem;
         font-weight: 800;
-        margin-bottom: 0rem; /* Mengurangi margin bawah judul */
-    }
+        margin-bottom: 0rem;
+    }}
 
     /* Mengubah gaya tombol mulai perjalanan */
-    .stButton[data-testid="stButton-hero_btn"] > button {
-        background-color: #38b2ac !important;
+    .stButton[data-testid="stButton-hero_btn"] > button {{
+        background-color: var(--septem-blue) !important;
         color: white !important;
         padding: 0.85rem 2rem !important;
         border-radius: 9999px !important;
         font-weight: 600 !important;
         text-decoration: none !important;
         transition: background-color 0.3s ease, transform 0.2s ease !important;
-        box-shadow: 0 4px 6px rgba(56, 178, 172, 0.3) !important;
+        box-shadow: 0 4px 6px var(--shadow-color-light) !important; /* Menggunakan variabel */
         border: none !important;
         min-height: auto !important;
-        margin-top: 2rem; /* Tambahkan margin atas untuk memberi jarak dari judul */
-    }
-    .stButton[data-testid="stButton-hero_btn"] > button:hover {
+        margin-top: 2rem;
+    }}
+    .stButton[data-testid="stButton-hero_btn"] > button:hover {{
         background-color: #319795 !important;
         transform: translateY(-2px) !important;
-    }
-    .hero-small-text {
+    }}
+    .hero-small-text {{
         position: absolute;
         bottom: 2.5rem;
         left: 50%;
         transform: translateX(-50%);
         font-size: 0.875rem;
         font-weight: 600;
-        color: white;
+        color: white; /* Tetap putih */
         white-space: nowrap;
-    }
+    }}
     
     /* Section Headers */
-    .section-title {
+    .section-title {{
         font-size: 2.5rem;
         font-weight: 700;
-        color: #2d3748;
+        color: var(--text-color);
         text-align: center;
         margin-bottom: 3rem;
         margin-top: 4rem;
-    }
+    }}
     
     /* WHO SEPTEM Section */
-    .about-us-section {
+    .about-us-section {{
         text-align: center;
         padding: 4rem 0;
-    }
-    .about-us-title {
+    }}
+    .about-us-title {{
         font-size: 2.5rem;
         font-weight: 700;
-        color: #2d3748;
+        color: var(--text-color);
         margin-bottom: 1.5rem;
-    }
-    .about-us-text {
+    }}
+    .about-us-text {{
         max-width: 800px;
         margin: 0 auto 2rem auto;
         font-size: 1.125rem;
         line-height: 1.75;
-        color: #4a5568;
+        color: var(--secondary-text-color);
         text-align: center;
-    }
-    .about-us-images {
+    }}
+    .about-us-images {{
         display: flex;
         justify-content: center;
         gap: 1rem;
         margin-top: 2rem;
         flex-wrap: wrap; 
-    }
-    .about-us-image {
+    }}
+    .about-us-image {{
         width: 100%; 
         max-width: 250px;
         height: 250px;
         object-fit: cover;
         border-radius: 1.5rem;
-        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-    }
+        box-shadow: 0 10px 15px var(--shadow-color-light), 0 4px 6px var(--shadow-color-dark);
+    }}
 
     /* Card Layout */
-    .card-grid {
+    .card-grid {{
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
         gap: 2rem;
         margin: 0 auto;
         max-width: 1200px;
         padding-bottom: 4rem;
-    }
-    .tour-card-item {
-        background-color: white;
+    }}
+    .tour-card-item {{
+        background-color: var(--card-background);
         border-radius: 1.25rem;
-        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        box-shadow: 0 10px 15px var(--shadow-color-light), 0 4px 6px var(--shadow-color-dark);
         overflow: hidden;
         transition: transform 0.3s ease, box-shadow 0.3s ease;
         display: flex;
         flex-direction: column;
         cursor: pointer; 
-    }
-    .tour-card-item:hover {
+    }}
+    .tour-card-item:hover {{
         transform: translateY(-8px);
-        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-    }
-    .tour-card-image {
+        box-shadow: 0 20px 25px var(--shadow-color-light), 0 10px 10px var(--shadow-color-dark);
+    }}
+    .tour-card-image {{
         width: 100%;
         height: 200px;
         object-fit: cover;
-    }
-    .tour-card-content {
+    }}
+    .tour-card-content {{
         padding: 1.5rem;
         flex-grow: 1;
         display: flex;
         flex-direction: column;
         text-align: center;
-    }
-    .tour-card-title {
+    }}
+    .tour-card-title {{
         font-size: 1.5rem;
         font-weight: 700;
-        color: #1a202c;
+        color: var(--text-color);
         margin-bottom: 0.5rem;
-    }
-    .tour-card-price {
+    }}
+    .tour-card-price {{
         font-size: 1.5rem;
         font-weight: 800;
-        color: #38b2ac;
+        color: var(--septem-blue);
         margin-bottom: 1rem;
-    }
-    .tour-card-btn {
-        background-color: #38b2ac;
+    }}
+    .tour-card-btn {{
+        background-color: var(--septem-blue);
         color: white;
         padding: 0.75rem 1.5rem;
         border-radius: 9999px;
@@ -318,100 +344,137 @@ st.markdown("""
         justify-content: center;
         transition: background-color 0.3s ease, transform 0.2s ease;
         margin-top: auto;
-    }
-    .tour-card-btn:hover {
+    }}
+    .tour-card-btn:hover {{
         background-color: #319795;
         transform: translateY(-2px);
-    }
-    .tour-card-btn svg {
+    }}
+    .tour-card-btn svg {{
         margin-left: 0.5rem;
         font-size: 0.75rem;
-    }
+    }}
     
     /* Tabs */
-    .stTabs [data-baseweb="tab-list"] {
+    .stTabs [data-baseweb="tab-list"] {{
         gap: 16px;
-    }
-    .stTabs [data-baseweb="tab"] {
+    }}
+    .stTabs [data-baseweb="tab"] {{
         border-bottom: 2px solid transparent !important;
-        background-color: #f0f2f5 !important;
+        background-color: var(--background-color) !important;
         padding: 1rem;
-    }
-    .stTabs [data-baseweb="tab"][aria-selected="true"] {
-        border-bottom: 2px solid #38b2ac !important;
-        color: #38b2ac !important;
-        background-color: white !important;
+        color: var(--secondary-text-color) !important;
+    }}
+    .stTabs [data-baseweb="tab"][aria-selected="true"] {{
+        border-bottom: 2px solid var(--septem-blue) !important;
+        color: var(--septem-blue) !important;
+        background-color: var(--card-background) !important;
         font-weight: 600;
-    }
-    .detail-card {
-        background-color: white;
+    }}
+    .detail-card {{
+        background-color: var(--card-background);
         border-radius: 1.25rem;
         padding: 2rem;
-        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        box-shadow: 0 10px 15px var(--shadow-color-light), 0 4px 6px var(--shadow-color-dark);
         text-align: left;
-    }
+    }}
+    .detail-card h3 {{
+        color: var(--text-color);
+    }}
+    .detail-card p {{
+        color: var(--secondary-text-color);
+    }}
     
     /* Formulir Kontak */
-    .contact-form-container {
+    .contact-form-container {{
         max-width: 800px;
         margin: 2rem auto;
-        background-color: white;
+        background-color: var(--card-background);
         padding: 2.5rem;
         border-radius: 1.25rem;
-        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-    }
-    .stForm button {
+        box-shadow: 0 10px 15px var(--shadow-color-light), 0 4px 6px var(--shadow-color-dark);
+    }}
+    .contact-form-container h3 {{
+        color: var(--text-color);
+    }}
+    .stForm label {{
+        color: var(--secondary-text-color);
+    }}
+    .stForm button {{
         margin-top: 1.5rem;
         width: 100%;
         padding: 1rem;
         font-size: 1.125rem;
-    }
+        background-color: var(--septem-blue);
+        color: white;
+        border-radius: 9999px;
+        border: none;
+        transition: background-color 0.3s ease, transform 0.2s ease;
+        box-shadow: 0 4px 6px var(--shadow-color-light);
+    }}
+    .stForm button:hover {{
+        background-color: #319795;
+        transform: translateY(-2px);
+    }}
     
     /* Footer */
-    .footer {
-        background-color: #2d3748;
-        color: white;
+    .footer {{
+        background-color: var(--footer-background);
+        color: var(--footer-text-color);
         padding: 3rem 2rem;
         text-align: center;
         border-top-left-radius: 50px;
         border-top-right-radius: 50px;
         margin-top: 4rem;
-    }
-    .footer-logo {
+    }}
+    .footer-logo {{
         font-size: 2.25rem;
         font-weight: 800;
-        color: white;
+        color: white; /* Logo tetap putih */
         margin-bottom: 1rem;
-    }
-    .footer-text {
+    }}
+    .footer-text {{
         font-size: 0.875rem;
         margin-bottom: 1.5rem;
-        color: #cbd5e0;
-    }
-    .social-icons {
+        color: var(--footer-text-color);
+    }}
+    .social-icons {{
         display: flex;
         justify-content: center;
         gap: 1.5rem;
         margin-bottom: 2rem;
-    }
-    .social-icons a {
-        color: white;
+    }}
+    .social-icons a {{
+        color: white; /* Ikon tetap putih */
         font-size: 1.5rem;
         transition: color 0.3s ease;
-    }
-    .social-icons a:hover {
-        color: #38b2ac;
-    }
-    .footer-copy {
+    }}
+    .social-icons a:hover {{
+        color: var(--septem-blue);
+    }}
+    .footer-copy {{
         font-size: 0.875rem;
         opacity: 0.75;
-        color: #a0aec0;
-    }
+        color: var(--secondary-text-color);
+    }}
+
+    /* Ulasan */
+    .review-card {{
+        background-color: var(--card-background); 
+        padding: 1.5rem; 
+        border-radius: 1rem; 
+        box-shadow: 0 4px 6px var(--shadow-color-light); 
+        margin-bottom: 1.5rem;
+        text-align: left;
+    }}
+    .review-card p {{
+        color: var(--secondary-text-color);
+    }}
 </style>
 """, unsafe_allow_html=True)
 
+
 # --- Data Dummy untuk Tur yang Lebih Lengkap ---
-TOUR_PACKAGES_DATA = {
+TOUR_PACKAGES_DATA: Dict[str, Dict[str, Any]] = {
     "bromo-midnight": {
         "nama": "Bromo Midnight",
         "durasi": "1 Hari",
@@ -552,6 +615,7 @@ if 'current_page' not in st.session_state:
 
 # --- Callback function untuk mengalihkan halaman ---
 def set_page(page_name, tour_id=None):
+    """Fungsi untuk mengalihkan halaman dan memperbarui session state."""
     st.session_state.current_page = page_name
     st.session_state.selected_tour = tour_id
     st.query_params['page'] = page_name
@@ -562,6 +626,7 @@ def set_page(page_name, tour_id=None):
 
 # --- Fungsi Tampilan Halaman ---
 def show_navbar():
+    """Menampilkan navigasi bar di bagian atas halaman."""
     st.markdown("""
     <div class="navbar">
         <div class="navbar-content">
@@ -573,17 +638,20 @@ def show_navbar():
     """, unsafe_allow_html=True)
     
     with st.container():
-        col1, col2, col3, col4, col5 = st.columns([1, 1, 1, 1, 1])
-        with col1:
+        col_nav1, col_nav2, col_nav3, col_nav4, col_nav5, col_theme = st.columns([1, 1, 1, 1, 1, 0.5])
+        with col_nav1:
             st.button("Home", on_click=set_page, args=('home',), key='nav_home')
-        with col2:
+        with col_nav2:
             st.button("Rent Car", on_click=set_page, args=('rent_car',), key='nav_rent')
-        with col3:
+        with col_nav3:
             st.button("Galeri", on_click=set_page, args=('gallery',), key='nav_gallery')
-        with col4:
+        with col_nav4:
             st.button("Hubungi Kami", on_click=set_page, args=('contact_us',), key='nav_contact')
-        with col5:
+        with col_nav5:
             st.button("Ulasan Kami", on_click=set_page, args=('reviews',), key='nav_reviews')
+        with col_theme:
+            theme_icon = "☀️" if st.session_state.theme == 'light' else "🌙"
+            st.button(theme_icon, on_click=toggle_theme, key='theme_toggle', help="Toggle Dark/Light Mode")
     
     st.markdown("""
             </div>
@@ -592,28 +660,15 @@ def show_navbar():
     """, unsafe_allow_html=True)
 
 def show_hero_section():
+    """Menampilkan bagian hero (header utama) dengan gambar latar belakang."""
     st.markdown('<a id="beranda"></a>', unsafe_allow_html=True)
-    
-    # Menampilkan gambar latar yang berbeda berdasarkan tema
-    if theme == "dark":
-        hero_bg_url = "https://raw.githubusercontent.com/tourandtravel382/tourandtravel/main/images/bromo_dark.jpg"  # Ganti dengan URL gambar dark mode Anda
-    else:
-        hero_bg_url = "https://raw.githubusercontent.com/tourandtravel382/tourandtravel/main/images/bromomidnight(group).png"
-
     st.markdown(f"""
-    <style>
-    .hero-section {{
-        background-image: url('{hero_bg_url}');
-    }}
-    </style>
-    """, unsafe_allow_html=True)
-    
-    st.markdown("""
     <div class="hero-section">
         <div class="hero-overlay"></div>
         <div class="hero-content">
             <h1 class="hero-title">Selamat Datang di<br>Septem Tour.</h1>
-            <h3 style="margin-top: -1rem; margin-bottom: 2rem;">Mulai Perjalanan Anda</h3>
+            <h3 style="margin-top: -1rem; margin-bottom: 2rem; color: white;">Mulai Perjalanan Anda</h3>
+            
     """, unsafe_allow_html=True)
 
     st.button("Pesan Paket Tour", on_click=set_page, args=('tour_packages',), key='hero_btn')
@@ -625,6 +680,7 @@ def show_hero_section():
     """, unsafe_allow_html=True)
 
 def show_about_us():
+    """Menampilkan bagian 'Tentang Kami'."""
     st.markdown('<a id="about-us"></a>', unsafe_allow_html=True)
     st.markdown("<h2 class='section-title'>SIAPA KAMI?</h2>", unsafe_allow_html=True)
     
@@ -651,34 +707,35 @@ def show_about_us():
         </div>
         """, unsafe_allow_html=True)
 
-
 def show_tour_packages():
+    """Menampilkan daftar paket tur dalam format grid."""
     st.markdown('<a id="packet-tour"></a>', unsafe_allow_html=True)
     st.markdown("<h2 class='section-title'>CARI TUR ANDA</h2>", unsafe_allow_html=True)
     
     tour_keys = list(TOUR_PACKAGES_DATA.keys())
     
     st.markdown('<div class="card-grid">', unsafe_allow_html=True)
-    cols = st.columns(3)
     
-    for i, key in enumerate(tour_keys):
-        package = TOUR_PACKAGES_DATA[key]
-        with cols[i % 3]:
-            st.markdown(f"""
-            <div class="tour-card-item">
-                <img src="{package['image_url']}" alt="{package['nama']}" class="tour-card-image">
-                <div class="tour-card-content">
-                    <h3 class="tour-card-title">{package['nama']}</h3>
-                    <p class="tour-card-price">{package['harga']}</p>
-                </div>
-            </div>
-            """, unsafe_allow_html=True)
-            
-            st.button("Baca Selengkapnya", key=f"btn_{key}", on_click=set_page, args=('detail_tour', key))
+    # Gunakan layout kolom Streamlit untuk membuat grid
+    num_cols = 3
+    for i in range(0, len(tour_keys), num_cols):
+        cols = st.columns(num_cols)
+        for j in range(num_cols):
+            if i + j < len(tour_keys):
+                key = tour_keys[i + j]
+                package = TOUR_PACKAGES_DATA[key]
+                with cols[j]:
+                    # Menggunakan st.container untuk mengelompokkan elemen dalam "kartu"
+                    with st.container(border=True):
+                        st.image(package['image_url'], caption=package['nama'], use_container_width=True)
+                        st.markdown(f"<h3 class='tour-card-title'>{package['nama']}</h3>", unsafe_allow_html=True)
+                        st.markdown(f"<p class='tour-card-price'>{package['harga']}</p>", unsafe_allow_html=True)
+                        st.button("Baca Selengkapnya", key=f"btn_{key}", on_click=set_page, args=('detail_tour', key))
 
     st.markdown('</div>', unsafe_allow_html=True)
 
 def show_tour_detail(tour_id):
+    """Menampilkan detail dari paket tur yang dipilih."""
     if tour_id and tour_id in TOUR_PACKAGES_DATA:
         package = TOUR_PACKAGES_DATA[tour_id]
         
@@ -730,7 +787,7 @@ def show_tour_detail(tour_id):
             <div class="detail-card">
                 <h3>Pesan Sekarang</h3>
                 <p>Untuk memesan paket ini, silakan hubungi kami melalui WhatsApp dengan menekan tombol di bawah ini.</p>
-                <a href="https://wa.me/6282233020807?text=Halo%20Septem%20Tour,%20saya%20tertarik%20dengan%20paket%20{package['nama']}.%20Mohon%20info%20lebih%20lanjut." target="_blank" class="hero-btn" style="display: block; width: fit-content; margin: 1rem auto;">Pesan Sekarang Melalui WhatsApp</a>
+                <a href="https://wa.me/6282233020807?text=Halo%20Septem%20Tour,%20saya%20tertarik%20dengan%20paket%20{package['nama']}.%20Mohon%20info%20lebih%20lanjut." target="_blank" class="tour-card-btn" style="display: block; width: fit-content; margin: 1rem auto;">Pesan Sekarang Melalui WhatsApp</a>
             </div>
             """, unsafe_allow_html=True)
 
@@ -741,6 +798,7 @@ def show_tour_detail(tour_id):
         st.button("Kembali ke Halaman Utama", on_click=set_page, args=('home',), key='not_found_home')
     
 def show_rent_car():
+    """Menampilkan halaman formulir sewa mobil."""
     st.markdown('<a id="rent-car"></a>', unsafe_allow_html=True)
     st.markdown("<h2 class='section-title'>Sewa Mobil 🚗</h2>", unsafe_allow_html=True)
     with st.container():
@@ -770,9 +828,10 @@ def show_rent_car():
         st.markdown('</div>', unsafe_allow_html=True)
 
 def show_gallery():
+    """Menampilkan halaman galeri dengan gambar-gambar."""
     st.markdown('<a id="galeri"></a>', unsafe_allow_html=True)
     st.markdown("<h2 class='section-title'>Galeri 🖼️</h2>", unsafe_allow_html=True)
-    st.markdown("<p style='text-align: center; font-size: 1.125rem; color: #4a5568;'>Bagian ini akan menampilkan koleksi foto-foto perjalanan kami yang menakjubkan!</p>", unsafe_allow_html=True)
+    st.markdown("<p style='text-align: center; font-size: 1.125rem; color: var(--secondary-text-color);'>Bagian ini akan menampilkan koleksi foto-foto perjalanan kami yang menakjubkan!</p>", unsafe_allow_html=True)
     gallery_images = [
         "https://raw.githubusercontent.com/tourandtravel382/tourandtravel/main/images/galeri1.jpg", 
         "https://raw.githubusercontent.com/tourandtravel382/tourandtravel/main/images/galeri1.jpg", 
@@ -786,6 +845,7 @@ def show_gallery():
             st.image(img_url, caption=f"Foto {i+1}", use_container_width=True)
 
 def show_contact_us():
+    """Menampilkan halaman formulir kontak."""
     st.markdown('<a id="hubungi-kami"></a>', unsafe_allow_html=True)
     st.markdown("<h2 class='section-title'>Hubungi Kami 📞</h2>", unsafe_allow_html=True)
     with st.container():
@@ -804,55 +864,50 @@ def show_contact_us():
             if submitted_contact:
                 if name and email and subject and message:
                     try:
-                        # Mengambil kredensial dari secrets.toml
+                        # Pastikan Anda sudah mengatur secrets.toml di environment deployment Anda
                         email_sender = st.secrets["email"]["email_address"]
                         email_password = st.secrets["email"]["app_password"]
                         email_receiver = email_sender
 
-                        # Membuat pesan email
-                        msg = EmailMessage()
-                        msg["Subject"] = f"Pesan dari Formulir Kontak: {subject}"
-                        msg["From"] = email_sender
-                        msg["To"] = email_receiver
-                        msg.set_content(f"""
+                        email_body = f"""
 Nama: {name}
 Email Pengirim: {email}
+Subjek: {subject}
 Pesan: {message}
-""")
-
-                        # Mengatur konteks SSL untuk koneksi yang aman
+"""
+                        full_message = f"Subject: Pesan dari Formulir Kontak\n\n{email_body}"
                         context = ssl.create_default_context()
 
-                        # Mengirim email
                         with smtplib.SMTP_SSL("smtp.gmail.com", 465, context=context) as smtp:
                             smtp.login(email_sender, email_password)
-                            smtp.send_message(msg)
+                            smtp.sendmail(email_sender, email_receiver, full_message)
                         
                         st.success("Terima kasih! Pesan Anda telah terkirim dan kami akan segera merespons.")
 
                     except Exception as e:
-                        st.error(f"Pesan gagal dikirim. Kesalahan: {e}")
+                        st.error(f"Pesan gagal dikirim. Pastikan Anda telah mengatur `secrets.toml` dengan benar. Kesalahan: {e}")
                         
                 else:
                     st.error("Mohon lengkapi semua kolom yang wajib diisi.")
         st.markdown('</div>', unsafe_allow_html=True)
 
 def show_reviews():
+    """Menampilkan halaman ulasan pelanggan dan formulir penambahan ulasan."""
     st.markdown('<a id="ulasan-kami"></a>', unsafe_allow_html=True)
     st.markdown("<h2 class='section-title'>Ulasan Pelanggan ⭐</h2>", unsafe_allow_html=True)
-    st.markdown("<p style='text-align: center; font-size: 1.125rem; color: #4a5568;'>Lihat apa kata pelanggan kami tentang pengalaman perjalanan mereka bersama Septem Tour!</p>", unsafe_allow_html=True)
+    st.markdown("<p style='text-align: center; font-size: 1.125rem; color: var(--secondary-text-color);'>Lihat apa kata pelanggan kami tentang pengalaman perjalanan mereka bersama Septem Tour!</p>", unsafe_allow_html=True)
     
     cols = st.columns(3)
     for i, review in enumerate(st.session_state.reviews):
         with cols[i % 3]:
             st.markdown(f"""
-            <div style="background-color: white; padding: 1.5rem; border-radius: 1rem; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-bottom: 1.5rem;">
-                <p style="font-weight: bold; margin-bottom: 0.5rem;">{review['name']}</p>
-                <p style="font-style: italic; color: #4a5568;">"{review['review']}"</p>
+            <div class="review-card">
+                <p style="font-weight: bold; margin-bottom: 0.5rem; color: var(--text-color);">{review['name']}</p>
+                <p style="font-style: italic; color: var(--secondary-text-color);">"{review['review']}"</p>
             </div>
             """, unsafe_allow_html=True)
     
-    st.markdown("<h3 style='text-align: center; margin-top: 2rem;'>Tambahkan Ulasan Anda</h3>", unsafe_allow_html=True)
+    st.markdown("<h3 style='text-align: center; margin-top: 2rem; color: var(--text-color);'>Tambahkan Ulasan Anda</h3>", unsafe_allow_html=True)
     with st.form("review_form"):
         name_input = st.text_input("Nama Anda")
         review_input = st.text_area("Ulasan Anda", height=100)
@@ -862,14 +917,17 @@ def show_reviews():
             new_review = {"name": name_input, "review": review_input}
             st.session_state.reviews.append(new_review)
             st.success("Terima kasih! Ulasan Anda telah berhasil ditambahkan.")
+            st.experimental_rerun() # Rerun untuk memperbarui tampilan ulasan
         elif submitted:
             st.error("Mohon isi nama dan ulasan Anda.")
 
 def show_home_page():
+    """Menampilkan konten halaman utama."""
     show_hero_section()
     show_about_us()
 
 def show_footer():
+    """Menampilkan footer di bagian bawah halaman."""
     st.markdown("""
     <div class="footer">
         <div class="footer-logo">SEPTEM TOUR</div>
@@ -879,21 +937,21 @@ def show_footer():
             <a href="#"><i class="fab fa-instagram"></i></a>
             <a href="https://wa.me/6282233020807" target="_blank"><i class="fab fa-whatsapp"></i></a>
         </div>
-        <p class="footer-copy">© 2024 Septem Tour. All Rights Reserved.</p>
+        <p class="footer-copy">© 2024 Septem Tour. All rights reserved.</p>
     </div>
     """, unsafe_allow_html=True)
 
-
-# --- Logika Navigasi Halaman ---
-st.markdown("<a id='top'></a>", unsafe_allow_html=True)
+# --- Main App Logic ---
 show_navbar()
 
-# Mengambil parameter dari URL untuk navigasi
-query_params = st.query_params
-if 'page' in query_params:
-    st.session_state.current_page = query_params['page'][0]
-    if 'tour_id' in query_params:
-        st.session_state.selected_tour = query_params['tour_id'][0]
+# Dapatkan halaman dari query params atau session state
+if 'page' in st.query_params:
+    st.session_state.current_page = st.query_params['page']
+    if st.session_state.current_page == 'detail_tour' and 'tour_id' in st.query_params:
+        st.session_state.selected_tour = st.query_params['tour_id']
+
+# Konten utama
+st.markdown('<div class="content-container">', unsafe_allow_html=True)
 
 if st.session_state.current_page == 'home':
     show_home_page()
@@ -910,5 +968,7 @@ elif st.session_state.current_page == 'contact_us':
     show_contact_us()
 elif st.session_state.current_page == 'reviews':
     show_reviews()
-    
+
+st.markdown('</div>', unsafe_allow_html=True)
+
 show_footer()
