@@ -1,4 +1,6 @@
 import streamlit as st
+import smtplib
+import ssl
 
 # --- Konfigurasi Halaman & CSS Kustom ---
 st.set_page_config(
@@ -402,7 +404,7 @@ TOUR_PACKAGES_DATA = {
         "transportasi": "Jeep 4x4",
         "fasilitas": "Jeep 4x4, Tiket Masuk, Air Mineral",
         "itinerary": "Penjemputan, menikmati sunrise Bromo, kawah, dan padang savana. Kembali ke titik awal.",
-        "image_url": "https://raw.githubusercontent.com/tourandtravel382/tourandtravel/main/images/bromo.png" # Ganti ID ini
+        "image_url": "https://raw.githubusercontent.com/tourandtravel382/tourandtravel/main/images/bromo.png" 
     },
     "bromo-tumpak-sewu-2d1n": {
         "nama": "Bromo - Tumpak Sewu (2D1N)",
@@ -416,7 +418,7 @@ TOUR_PACKAGES_DATA = {
         "transportasi": "Avanza/Innova Reborn/Hiace",
         "fasilitas": "Transportasi, Hotel, Tiket Masuk, Konsumsi",
         "itinerary": "Hari 1: Turun ke air terjun Tumpak Sewu, dilanjutkan menuju Bromo. Hari 2: Menikmati sunrise Bromo dan kembali.",
-        "image_url": "https://raw.githubusercontent.com/tourandtravel382/tourandtravel/main/images/bromotumpaksewu.png" # Ganti ID ini
+        "image_url": "https://raw.githubusercontent.com/tourandtravel382/tourandtravel/main/images/bromotumpaksewu.png" 
     },
     "tumpak-sewu-bromo-ijen-3d2n": {
         "nama": "Tumpak Sewu - Bromo - Ijen (3D2N)",
@@ -430,7 +432,7 @@ TOUR_PACKAGES_DATA = {
         "transportasi": "Avanza/Innova Reborn/Hiace & Jeep 4x4",
         "fasilitas": "Transportasi, Hotel (2 malam), Tiket Masuk, Konsumsi",
         "itinerary": "Hari 1: Jelajah Tumpak Sewu. Hari 2: Sunrise Bromo. Hari 3: Blue fire Kawah Ijen dan kembali.",
-        "image_url": "https://raw.githubusercontent.com/tourandtravel382/tourandtravel/main/images/tumpaksewubromoijen.png" # Ganti ID ini
+        "image_url": "https://raw.githubusercontent.com/tourandtravel382/tourandtravel/main/images/tumpaksewubromoijen.png" 
     },
     "city-tour-malang-batu": {
         "nama": "City Tour Malang - Batu",
@@ -444,7 +446,7 @@ TOUR_PACKAGES_DATA = {
         "transportasi": "Avanza/Innova Reborn/Hiace",
         "fasilitas": "Transportasi, Tiket Masuk, Pemandu",
         "itinerary": "Jelajah kota Malang dan Batu, termasuk museum, tempat wisata, dan kuliner.",
-        "image_url": "https://raw.githubusercontent.com/tourandtravel382/tourandtravel/main/images/malangbatu.jpg" # Ganti ID ini
+        "image_url": "https://raw.githubusercontent.com/tourandtravel382/tourandtravel/main/images/malangbatu.jpg" 
     },
     "raja-ampat": {
         "nama": "Raja Ampat, Indonesia",
@@ -458,7 +460,7 @@ TOUR_PACKAGES_DATA = {
         "transportasi": "Kapal, Speedboat",
         "fasilitas": "Transportasi, Penginapan, Tiket, Snorkeling",
         "itinerary": "Eksplorasi keindahan bawah laut Raja Ampat.",
-        "image_url": "https://raw.githubusercontent.com/tourandtravel382/tourandtravel/main/images/rajaampat.jpg" # Ganti ID ini
+        "image_url": "https://raw.githubusercontent.com/tourandtravel382/tourandtravel/main/images/rajaampat.jpg" 
     },
     "city-tour-bali": {
         "nama": "City Tour Bali",
@@ -472,7 +474,7 @@ TOUR_PACKAGES_DATA = {
         "transportasi": "Avanza/Innova Reborn",
         "fasilitas": "Transportasi, Hotel, Tiket Masuk",
         "itinerary": "Menjelajahi keindahan budaya dan alam Bali.",
-        "image_url": "https://raw.githubusercontent.com/tourandtravel382/tourandtravel/main/images/bali.jpg" # Ganti ID ini
+        "image_url": "https://raw.githubusercontent.com/tourandtravel382/tourandtravel/main/images/bali.jpg" 
     },
     "city-tour-yogyakarta": {
         "nama": "City Tour Yogyakarta",
@@ -486,7 +488,7 @@ TOUR_PACKAGES_DATA = {
         "transportasi": "Avanza/Innova Reborn",
         "fasilitas": "Transportasi, Hotel, Tiket Masuk, Pemandu",
         "itinerary": "Menjelajahi Candi Borobudur, Candi Prambanan, dan tempat bersejarah lainnya.",
-        "image_url": "https://raw.githubusercontent.com/tourandtravel382/tourandtravel/main/images/yogyakarta.jpg" # Ganti ID ini
+        "image_url": "https://raw.githubusercontent.com/tourandtravel382/tourandtravel/main/images/yogyakarta.jpg" 
     },
     "bromo-midnight-group": {
         "nama": "Bromo Midnight (GROUP)",
@@ -500,7 +502,7 @@ TOUR_PACKAGES_DATA = {
         "transportasi": "Jeep 4x4",
         "fasilitas": "Jeep 4x4, Tiket Masuk, Air Mineral",
         "itinerary": "Paket grup untuk tur Bromo Midnight.",
-        "image_url": "https://raw.githubusercontent.com/tourandtravel382/tourandtravel/main/images/bromomidnight(group).png" # Ganti ID ini
+        "image_url": "https://raw.githubusercontent.com/tourandtravel382/tourandtravel/main/images/bromomidnight(group).png" 
     },
     "request-package": {
         "nama": "Request Package",
@@ -514,7 +516,7 @@ TOUR_PACKAGES_DATA = {
         "transportasi": "Sesuai Permintaan",
         "fasilitas": "Sesuai Permintaan",
         "itinerary": "Anda dapat mengajukan paket tur yang Anda inginkan.",
-        "image_url": "https://raw.githubusercontent.com/tourandtravel382/tourandtravel/main/images/requestpackage.jpg" # Ganti ID ini
+        "image_url": "https://raw.githubusercontent.com/tourandtravel382/tourandtravel/main/images/requestpackage.jpg" 
     }
 }
 
@@ -738,11 +740,11 @@ def show_gallery():
     st.markdown("<h2 class='section-title'>Galeri 🖼️</h2>", unsafe_allow_html=True)
     st.markdown("<p style='text-align: center; font-size: 1.125rem; color: #4a5568;'>Bagian ini akan menampilkan koleksi foto-foto perjalanan kami yang menakjubkan!</p>", unsafe_allow_html=True)
     gallery_images = [
-        "https://raw.githubusercontent.com/tourandtravel382/tourandtravel/main/images/galeri1.jpg", # Ganti ID ini
-       "https://raw.githubusercontent.com/tourandtravel382/tourandtravel/main/images/galeri1.jpg", # Ganti ID ini
+        "https://raw.githubusercontent.com/tourandtravel382/tourandtravel/main/images/galeri1.jpg", 
+        "https://raw.githubusercontent.com/tourandtravel382/tourandtravel/main/images/galeri1.jpg", 
         "https://raw.githubusercontent.com/tourandtravel382/tourandtravel/main/images/galeri1.jpg",
-         "https://raw.githubusercontent.com/tourandtravel382/tourandtravel/main/images/galeri1.jpg",
-          "https://raw.githubusercontent.com/tourandtravel382/tourandtravel/main/images/galeri1.jpg" # Ganti ID ini
+        "https://raw.githubusercontent.com/tourandtravel382/tourandtravel/main/images/galeri1.jpg",
+        "https://raw.githubusercontent.com/tourandtravel382/tourandtravel/main/images/galeri1.jpg" 
     ]
     cols = st.columns(len(gallery_images))
     for i, img_url in enumerate(gallery_images):
@@ -764,9 +766,37 @@ def show_contact_us():
             subject = st.text_input("Subjek")
             message = st.text_area("Pesan Anda", height=150)
             submitted_contact = st.form_submit_button("Kirim Pesan")
+            
             if submitted_contact:
                 if name and email and subject and message:
-                    st.success("Terima kasih! Pesan Anda telah terkirim dan kami akan segera merespons.")
+                    try:
+                        # Mengambil kredensial dari secrets.toml
+                        email_sender = st.secrets["email"]["email_address"]
+                        email_password = st.secrets["email"]["app_password"]
+                        email_receiver = email_sender
+
+                        # Membuat pesan email
+                        email_body = f"""
+Nama: {name}
+Email Pengirim: {email}
+Subjek: {subject}
+Pesan: {message}
+"""
+                        full_message = f"Subject: Pesan dari Formulir Kontak\n\n{email_body}"
+
+                        # Mengatur konteks SSL untuk koneksi yang aman
+                        context = ssl.create_default_context()
+
+                        # Mengirim email
+                        with smtplib.SMTP_SSL("smtp.gmail.com", 465, context=context) as smtp:
+                            smtp.login(email_sender, email_password)
+                            smtp.sendmail(email_sender, email_receiver, full_message)
+                        
+                        st.success("Terima kasih! Pesan Anda telah terkirim dan kami akan segera merespons.")
+
+                    except Exception as e:
+                        st.error(f"Pesan gagal dikirim. Kesalahan: {e}")
+                        
                 else:
                     st.error("Mohon lengkapi semua kolom yang wajib diisi.")
         st.markdown('</div>', unsafe_allow_html=True)
@@ -845,9 +875,8 @@ def main():
     elif st.session_state.current_page == 'reviews':
         show_reviews()
     
-    st.markdown('</div>', unsafe_allow_html=True)
+    # Menampilkan footer di setiap halaman
     show_footer()
 
-# --- Titik Masuk Aplikasi ---
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()
