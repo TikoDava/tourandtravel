@@ -1,6 +1,26 @@
 import streamlit as st
+import streamlit.components.v1 as components
 import smtplib
 import ssl
+from email.message import EmailMessage
+
+# --- Bagian 1: Deteksi Tema Otomatis dengan JavaScript ---
+components.html(
+    """
+    <script>
+    const body = window.parent.document.querySelector('body');
+    const theme = body.getAttribute('data-theme');
+    const url = new URL(window.location);
+    url.searchParams.set('theme', theme);
+    window.parent.history.replaceState({}, '', url);
+    </script>
+    """,
+    height=0,
+)
+
+# Mendapatkan tema dari URL parameter
+theme = st.query_params.get("theme", "light")
+
 
 # --- Konfigurasi Halaman & CSS Kustom ---
 st.set_page_config(
@@ -573,13 +593,27 @@ def show_navbar():
 
 def show_hero_section():
     st.markdown('<a id="beranda"></a>', unsafe_allow_html=True)
+    
+    # Menampilkan gambar latar yang berbeda berdasarkan tema
+    if theme == "dark":
+        hero_bg_url = "https://raw.githubusercontent.com/tourandtravel382/tourandtravel/main/images/bromo_dark.jpg"  # Ganti dengan URL gambar dark mode Anda
+    else:
+        hero_bg_url = "https://raw.githubusercontent.com/tourandtravel382/tourandtravel/main/images/bromomidnight(group).png"
+
+    st.markdown(f"""
+    <style>
+    .hero-section {{
+        background-image: url('{hero_bg_url}');
+    }}
+    </style>
+    """, unsafe_allow_html=True)
+    
     st.markdown("""
     <div class="hero-section">
         <div class="hero-overlay"></div>
         <div class="hero-content">
             <h1 class="hero-title">Selamat Datang di<br>Septem Tour.</h1>
             <h3 style="margin-top: -1rem; margin-bottom: 2rem;">Mulai Perjalanan Anda</h3>
-            
     """, unsafe_allow_html=True)
 
     st.button("Pesan Paket Tour", on_click=set_page, args=('tour_packages',), key='hero_btn')
@@ -776,13 +810,15 @@ def show_contact_us():
                         email_receiver = email_sender
 
                         # Membuat pesan email
-                        email_body = f"""
+                        msg = EmailMessage()
+                        msg["Subject"] = f"Pesan dari Formulir Kontak: {subject}"
+                        msg["From"] = email_sender
+                        msg["To"] = email_receiver
+                        msg.set_content(f"""
 Nama: {name}
 Email Pengirim: {email}
-Subjek: {subject}
 Pesan: {message}
-"""
-                        full_message = f"Subject: Pesan dari Formulir Kontak\n\n{email_body}"
+""")
 
                         # Mengatur konteks SSL untuk koneksi yang aman
                         context = ssl.create_default_context()
@@ -790,7 +826,7 @@ Pesan: {message}
                         # Mengirim email
                         with smtplib.SMTP_SSL("smtp.gmail.com", 465, context=context) as smtp:
                             smtp.login(email_sender, email_password)
-                            smtp.sendmail(email_sender, email_receiver, full_message)
+                            smtp.send_message(msg)
                         
                         st.success("Terima kasih! Pesan Anda telah terkirim dan kami akan segera merespons.")
 
@@ -843,40 +879,36 @@ def show_footer():
             <a href="#"><i class="fab fa-instagram"></i></a>
             <a href="https://wa.me/6282233020807" target="_blank"><i class="fab fa-whatsapp"></i></a>
         </div>
-        <p class="footer-copy">Hak Cipta © 2024 Septem Tour & Travel. Semua Hak Dilindungi.</p>
+        <p class="footer-copy">© 2024 Septem Tour. All Rights Reserved.</p>
     </div>
     """, unsafe_allow_html=True)
 
-# --- Logic Halaman Utama ---
-def main():
-    st.markdown('<div class="content-container">', unsafe_allow_html=True)
-    show_navbar()
-    
-    query_params = st.query_params
-    if 'page' in query_params:
-        page_name = query_params['page']
-        if page_name in ['home', 'tour_packages', 'rent_car', 'gallery', 'contact_us', 'reviews', 'detail_tour']:
-            st.session_state.current_page = page_name
-        if 'tour_id' in query_params:
-            st.session_state.selected_tour = query_params['tour_id']
-    
-    if st.session_state.current_page == 'home':
-        show_home_page()
-    elif st.session_state.current_page == 'tour_packages':
-        show_tour_packages()
-    elif st.session_state.current_page == 'detail_tour':
-        show_tour_detail(st.session_state.selected_tour)
-    elif st.session_state.current_page == 'rent_car':
-        show_rent_car()
-    elif st.session_state.current_page == 'gallery':
-        show_gallery()
-    elif st.session_state.current_page == 'contact_us':
-        show_contact_us()
-    elif st.session_state.current_page == 'reviews':
-        show_reviews()
-    
-    # Menampilkan footer di setiap halaman
-    show_footer()
 
-if __name__ == '__main__':
-    main()
+# --- Logika Navigasi Halaman ---
+st.markdown("<a id='top'></a>", unsafe_allow_html=True)
+show_navbar()
+
+# Mengambil parameter dari URL untuk navigasi
+query_params = st.query_params
+if 'page' in query_params:
+    st.session_state.current_page = query_params['page'][0]
+    if 'tour_id' in query_params:
+        st.session_state.selected_tour = query_params['tour_id'][0]
+
+if st.session_state.current_page == 'home':
+    show_home_page()
+    show_tour_packages()
+elif st.session_state.current_page == 'tour_packages':
+    show_tour_packages()
+elif st.session_state.current_page == 'detail_tour':
+    show_tour_detail(st.session_state.selected_tour)
+elif st.session_state.current_page == 'rent_car':
+    show_rent_car()
+elif st.session_state.current_page == 'gallery':
+    show_gallery()
+elif st.session_state.current_page == 'contact_us':
+    show_contact_us()
+elif st.session_state.current_page == 'reviews':
+    show_reviews()
+    
+show_footer()
