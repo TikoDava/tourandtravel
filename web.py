@@ -2,10 +2,11 @@ import streamlit as st
 import smtplib
 import ssl
 from typing import Dict, Any
+from email.message import EmailMessage
 
 # --- Konfigurasi Halaman & CSS Kustom ---
 st.set_page_config(
-    page_title="Septem Tour & Travel",
+    page_title="ASK Tour & Travel",
     page_icon="✈️",
     layout="wide"
 )
@@ -32,7 +33,7 @@ st.markdown(f"""
         --card-background: white;
         --footer-background: #2d3748;
         --footer-text-color: white;
-        --septem-blue: #38b2ac;
+        --ask-blue: #38b2ac;
         --secondary-text-color: #4a5568;
         --shadow-color-light: rgba(0, 0, 0, 0.1);
         --shadow-color-dark: rgba(0, 0, 0, 0.05);
@@ -44,7 +45,7 @@ st.markdown(f"""
         --card-background: #2d3748;
         --footer-background: #1a202c;
         --footer-text-color: #cbd5e0;
-        --septem-blue: #4fd1c5; /* Slightly lighter for dark mode */
+        --ask-blue: #4fd1c5; /* Slightly lighter for dark mode */
         --secondary-text-color: #a0aec0;
         --shadow-color-light: rgba(255, 255, 255, 0.1);
         --shadow-color-dark: rgba(255, 255, 255, 0.05);
@@ -75,11 +76,11 @@ st.markdown(f"""
         padding-right: 2rem;
         padding-left: 2rem;
     }}
-    .text-septem-blue {{
-        color: var(--septem-blue);
+    .text-ask-blue {{
+        color: var(--ask-blue);
     }}
-    .bg-septem-blue {{
-        background-color: var(--septem-blue);
+    .bg-ask-blue {{
+        background-color: var(--ask-blue);
     }}
     .st-emotion-cache-18ni7ap, .st-emotion-cache-h4xjwx {{
         padding-top: 0 !important;
@@ -90,76 +91,61 @@ st.markdown(f"""
     
     /* Navbar */
     .navbar {{
-        width: 100%;
-        background-color: transparent; /* Tetap transparan atau sesuaikan jika perlu */
-        box-shadow: none;
-        padding: 1rem 2rem;
-        display: flex;
-        justify-content: center;
+    width: 100%;
+    background-color: transparent;
+    box-shadow: none;
+    padding: 1rem 2rem;
+    display: flex;
+    justify-content: center; /* Hapus atau ganti ini */
     }}
-    .navbar-content {{
-        max-width: 1200px;
-        width: 100%;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        flex-wrap: wrap; 
-        gap: 1rem;
-    }}
-    .navbar-logo-container {{
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
+   .navbar-content {{
+    max-width: 1200px;
+    width: 100%;
+    display: flex;
+    justify-content: space-between; /* Ganti ke ini untuk rata kiri dan kanan */
+    align-items: center;
+    flex-wrap: wrap; 
+    gap: 1rem;
     }}
     .navbar-logo {{
-        height: 2.5rem;
-        width: 2.5rem;
-        border-radius: 9999px;
-        background-color: var(--septem-blue);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: white;
-        font-weight: 700;
-        font-size: 1.5rem;
+    height: 2.5rem;
+    width: 2.5rem;
+    border-radius: 9999px;
+    background-color: var(--ask-blue);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 700;
+    font-size: 1.5rem;
     }}
-    .navbar-title {{
-        font-size: 1.875rem;
-        font-weight: 800;
-        color: var(--septem-blue);
-        line-height: 1;
-    }}
-    .navbar-title span {{
-        font-weight: 400;
-        color: var(--secondary-text-color);
-        margin-left: 0.25rem;
-    }}
+    
     .navbar-links {{
-        display: flex;
-        gap: 2rem;
-        flex-wrap: wrap;
-        justify-content: center;
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    justify-content: flex-end;
     }}
     .navbar-links .stButton > button {{
-        background-color: transparent !important;
-        color: var(--secondary-text-color) !important;
-        font-weight: 500 !important;
-        text-decoration: none !important;
-        transition: color 0.3s ease !important;
-        padding: 0.5rem 0 !important;
-        border: none !important;
-        box-shadow: none !important;
-        min-height: auto !important;
-        border-bottom: 2px solid transparent !important;
+    background-color: transparent !important;
+    color: var(--secondary-text-color) !important;
+    font-weight: 500 !important;
+    text-decoration: none !important;
+    transition: color 0.3s ease !important;
+    padding: 0.5rem 0.75rem !important;
+    border: none !important;
+    box-shadow: none !important;
+    min-height: auto !important;
+    border-bottom: 2px solid transparent !important;
     }}
     .navbar-links .stButton > button:hover {{
-        color: var(--septem-blue) !important;
-        border-bottom: 2px solid var(--septem-blue) !important;
-    }}
-    .navbar-links .stButton > button[aria-selected="true"] {{
-        color: var(--septem-blue) !important;
-        border-bottom: 2px solid var(--septem-blue) !important;
-    }}
+    color: var(--ask-blue) !important;
+    border-bottom: 2px solid var(--ask-blue) !important;
+}}
+.navbar-links .stButton > button[aria-selected="true"] {{
+    color: var(--ask-blue) !important;
+    border-bottom: 2px solid var(--ask-blue) !important;
+}}
     
     .content-container {{
         padding-top: 0rem;
@@ -167,7 +153,7 @@ st.markdown(f"""
 
     /* Hero Section */
     .hero-section {{
-        background-image: url('https://raw.githubusercontent.com/tourandtravel382/tourandtravel/main/images/bromomidnight(group).png');
+        background-image: url('https://raw.githubusercontent.com/tourandtravel382/tourandtravel/main/images/ASKHOLIDAYLOGO.png');
         background-size: cover;
         background-position: center;
         height: 90vh;
@@ -213,7 +199,7 @@ st.markdown(f"""
 
     /* Mengubah gaya tombol mulai perjalanan */
     .stButton[data-testid="stButton-hero_btn"] > button {{
-        background-color: var(--septem-blue) !important;
+        background-color: var(--ask-blue) !important;
         color: white !important;
         padding: 0.85rem 2rem !important;
         border-radius: 9999px !important;
@@ -250,7 +236,7 @@ st.markdown(f"""
         margin-top: 4rem;
     }}
     
-    /* WHO SEPTEM Section */
+    /* WHO asl Section */
     .about-us-section {{
         text-align: center;
         padding: 4rem 0;
@@ -329,11 +315,11 @@ st.markdown(f"""
     .tour-card-price {{
         font-size: 1.5rem;
         font-weight: 800;
-        color: var(--septem-blue);
+        color: var(--ask-blue);
         margin-bottom: 1rem;
     }}
     .tour-card-btn {{
-        background-color: var(--septem-blue);
+        background-color: var(--ask-blue);
         color: white;
         padding: 0.75rem 1.5rem;
         border-radius: 9999px;
@@ -365,8 +351,8 @@ st.markdown(f"""
         color: var(--secondary-text-color) !important;
     }}
     .stTabs [data-baseweb="tab"][aria-selected="true"] {{
-        border-bottom: 2px solid var(--septem-blue) !important;
-        color: var(--septem-blue) !important;
+        border-bottom: 2px solid var(--ask-blue) !important;
+        color: var(--ask-blue) !important;
         background-color: var(--card-background) !important;
         font-weight: 600;
     }}
@@ -404,7 +390,7 @@ st.markdown(f"""
         width: 100%;
         padding: 1rem;
         font-size: 1.125rem;
-        background-color: var(--septem-blue);
+        background-color: var(--ask-blue);
         color: white;
         border-radius: 9999px;
         border: none;
@@ -449,7 +435,7 @@ st.markdown(f"""
         transition: color 0.3s ease;
     }}
     .social-icons a:hover {{
-        color: var(--septem-blue);
+        color: var(--ask-blue);
     }}
     .footer-copy {{
         font-size: 0.875rem;
@@ -610,7 +596,7 @@ if 'current_page' not in st.session_state:
     st.session_state.reviews = [
         {"name": "Ani Sutra", "review": "Perjalanan ke Bromo sangat luar biasa! Pemandu ramah dan pelayanan prima."},
         {"name": "Budi Santoso", "review": "Paket tour Bali sangat terencana dengan baik. Rekomendasi sekali!"},
-        {"name": "Citra Dewi", "review": "Sewa mobil di Septem Tour sangat mudah dan unitnya bersih. Top!"},
+        {"name": "Citra Dewi", "review": "Sewa mobil di ASK Tour sangat mudah dan unitnya bersih. Top!"},
     ]
 
 # --- Callback function untuk mengalihkan halaman ---
@@ -627,31 +613,41 @@ def set_page(page_name, tour_id=None):
 # --- Fungsi Tampilan Halaman ---
 def show_navbar():
     """Menampilkan navigasi bar di bagian atas halaman."""
-    st.markdown("""
-    <div class="navbar">
-        <div class="navbar-content">
-            <div class="navbar-logo-container">
-                <div class="navbar-logo">S</div>
-                <div class="navbar-title">SEPTEM<span>TOUR</span></div>
-            </div>
-            <div class="navbar-links">
-    """, unsafe_allow_html=True)
     
-    with st.container():
-        col_nav1, col_nav2, col_nav3, col_nav4, col_nav5, col_theme = st.columns([1, 1, 1, 1, 1, 0.5])
-        with col_nav1:
-            st.button("Home", on_click=set_page, args=('home',), key='nav_home')
-        with col_nav2:
-            st.button("Rent Car", on_click=set_page, args=('rent_car',), key='nav_rent')
-        with col_nav3:
-            st.button("Galeri", on_click=set_page, args=('gallery',), key='nav_gallery')
-        with col_nav4:
-            st.button("Hubungi Kami", on_click=set_page, args=('contact_us',), key='nav_contact')
-        with col_nav5:
-            st.button("Ulasan Kami", on_click=set_page, args=('reviews',), key='nav_reviews')
-        with col_theme:
-            theme_icon = "☀️" if st.session_state.theme == 'light' else "🌙"
-            st.button(theme_icon, on_click=toggle_theme, key='theme_toggle', help="Toggle Dark/Light Mode")
+    # Buat kolom untuk logo dan kolom untuk navigasi
+    # Kolom kosong di tengah berfungsi untuk mendorong tombol ke kanan
+    col_logo, col_space, col_home, col_rent, col_gallery, col_contact, col_reviews, col_theme = st.columns([0.5, 4, 1, 1, 1, 1, 1, 0.5])
+
+    # Tempatkan logo di kolom pertama
+    with col_logo:
+     st.markdown("""
+        <div style="display: flex; align-items: center; gap: 50px;">
+            <img src="https://raw.githubusercontent.com/tourandtravel382/tourandtravel/main/images/ASKLOGOBLUE.png" alt="Logo" style="height:50px; width:150px;">
+        </div>
+    """, unsafe_allow_html=True)
+    # Bagian Python untuk menampilkan gambar
+        
+    # Kolom kosong untuk mendorong tombol ke kanan
+    with col_space:
+        st.write("")
+        
+    # Tempatkan setiap tombol di kolom terpisah
+    with col_home:
+        st.button("Home", on_click=set_page, args=('home',), key='nav_home')
+    with col_rent:
+        st.button("Rent Car", on_click=set_page, args=('rent_car',), key='nav_rent')
+    with col_gallery:
+        st.button("Galeri", on_click=set_page, args=('gallery',), key='nav_gallery')
+    with col_contact:
+        st.button("Hubungi Kami", on_click=set_page, args=('contact_us',), key='nav_contact')
+    with col_reviews:
+        st.button("Ulasan Kami", on_click=set_page, args=('reviews',), key='nav_reviews')
+
+    # Tempatkan tombol tema di kolom terakhir
+    with col_theme:
+        theme_icon = "☀️" if st.session_state.theme == 'light' else "🌙"
+        st.button(theme_icon, on_click=toggle_theme, key='theme_toggle', help="Toggle Dark/Light Mode")
+
     
     st.markdown("""
             </div>
@@ -666,7 +662,7 @@ def show_hero_section():
     <div class="hero-section">
         <div class="hero-overlay"></div>
         <div class="hero-content">
-            <h1 class="hero-title">Selamat Datang di<br>Septem Tour.</h1>
+            <h1 class="hero-title">Selamat Datang di<br>ASK Tour.</h1>
             <h3 style="margin-top: -1rem; margin-bottom: 2rem; color: white;">Mulai Perjalanan Anda</h3>
             
     """, unsafe_allow_html=True)
@@ -675,7 +671,7 @@ def show_hero_section():
 
     st.markdown("""
         </div>
-        <p class="hero-small-text">KAMI ADALAH SEPTEM TOUR</p>
+        <p class="hero-small-text">KAMI ADALAH ASK TOUR</p>
     </div>
     """, unsafe_allow_html=True)
 
@@ -690,10 +686,10 @@ def show_about_us():
         st.markdown("""
         <div class="about-us-section">
             <p class="about-us-text">
-                SEPTEM TOUR adalah 7 keajaiban dalam liburan. Perusahaan kami di namai sesuai harapan dan keinginan kami untuk
+                ASK TOUR adalah 7 keajaiban dalam liburan. Perusahaan kami di namai sesuai harapan dan keinginan kami untuk
                 menjadi cakupan global dalam 7 benua untuk bidang perjalanan.
                 <br><br>
-                SEPTEM TOUR HADIR untuk mendorong talenta-talenta pariwisata lokal yang memiliki gairah dan antusias untuk
+                ASK TOUR HADIR untuk mendorong talenta-talenta pariwisata lokal yang memiliki gairah dan antusias untuk
                 mewadahi minat dan kegembiraan para wisatawan lokal maupun mancanegara dalam menjelajahi dan menikmati Indonesia, baik
                 alam maupun budayanya.
                 <br><br>
@@ -787,7 +783,7 @@ def show_tour_detail(tour_id):
             <div class="detail-card">
                 <h3>Pesan Sekarang</h3>
                 <p>Untuk memesan paket ini, silakan hubungi kami melalui WhatsApp dengan menekan tombol di bawah ini.</p>
-                <a href="https://wa.me/6282233020807?text=Halo%20Septem%20Tour,%20saya%20tertarik%20dengan%20paket%20{package['nama']}.%20Mohon%20info%20lebih%20lanjut." target="_blank" class="tour-card-btn" style="display: block; width: fit-content; margin: 1rem auto;">Pesan Sekarang Melalui WhatsApp</a>
+                <a href="https://wa.me/6282233020807?text=Halo%20ASK%20Tour,%20saya%20tertarik%20dengan%20paket%20{package['nama']}.%20Mohon%20info%20lebih%20lanjut." target="_blank" class="tour-card-btn" style="display: block; width: fit-content; margin: 1rem auto;">Pesan Sekarang Melalui WhatsApp</a>
             </div>
             """, unsafe_allow_html=True)
 
@@ -796,33 +792,77 @@ def show_tour_detail(tour_id):
     else:
         st.error("Paket tur tidak ditemukan.")
         st.button("Kembali ke Halaman Utama", on_click=set_page, args=('home',), key='not_found_home')
-    
+
+
 def show_rent_car():
     """Menampilkan halaman formulir sewa mobil."""
     st.markdown('<a id="rent-car"></a>', unsafe_allow_html=True)
-    st.markdown("<h2 class='section-title'>Sewa Mobil 🚗</h2>", unsafe_allow_html=True)
+    st.markdown("<h1 class='section-title'>PRICE !!!</h1>", unsafe_allow_html=True)
+
+    st.markdown("<hr>", unsafe_allow_html=True)
+
+    # --- KONTainer untuk Konten Tambahan (Seperti Harga) ---
     with st.container():
-        st.markdown('<div class="contact-form-container">', unsafe_allow_html=True)
+        # Masukkan kode untuk menampilkan harga atau informasi lainnya di sini
+        st.write(" Avanza: Rp 300.000/hari")
+        st.write(" Innova Reborn: Rp 500.000/hari")
+        st.write(" Hiace: Silakan hubungi kami untuk harga")
+        st.write(" Jeep 4x4: Silakan hubungi kami untuk harga")
+        
+        # Ini adalah tempat di mana Anda bisa menambahkan elemen lain
+        # yang akan berada di dalam kotak
+       
+        
+    # --- Formulir Sewa Mobil ---
+    # Kontainer ini sudah ada di dalam kode Anda, jadi pastikan
+    # Anda tidak membuat kontainer baru di luar
+    with st.container():
+        st.markdown("<hr>", unsafe_allow_html=True)
         st.markdown("<h3>Formulir Sewa Mobil</h3>", unsafe_allow_html=True)
         with st.form("rent_car_form"):
             col1, col2 = st.columns(2)
             with col1:
                 car_type = st.selectbox("Jenis Mobil", ["Pilih Jenis Mobil", "Avanza", "Innova Reborn", "Hiace", "Jeep 4x4"])
             with col2:
-                pickup_location = st.text_input("Lokasi Pengambilan", placeholder="Contoh: Surabaya")
+                whatsapp_number = st.text_input("Nomor WhatsApp", placeholder="Contoh: 6281234567890")
             
             col1, col2 = st.columns(2)
             with col1:
-                pickup_date = st.date_input("Tanggal Pengambilan")
+                pickup_location = st.text_input("Lokasi Pengambilan", placeholder="Contoh: Surabaya")
             with col2:
-                return_location = st.text_input("Lokasi Pengembalian", placeholder="Contoh: Malang")
+                pickup_date = st.date_input("Tanggal Pengambilan")
             
+            return_location = st.text_input("Lokasi Pengembalian", placeholder="Contoh: Malang")
             return_date = st.date_input("Tanggal Pengembalian")
 
             submitted_car = st.form_submit_button("Ajukan Sewa")
+            
             if submitted_car:
-                if car_type != "Pilih Jenis Mobil" and pickup_date and return_date and pickup_location and return_location:
-                    st.success("🎉 Pengajuan sewa mobil berhasil! Kami akan segera menghubungi Anda.")
+                if car_type != "Pilih Jenis Mobil" and pickup_location and return_location and whatsapp_number:
+                    try:
+                        email_sender = st.secrets["email"]["email_address"]
+                        email_password = st.secrets["email"]["app_password"]
+                        email_receiver = email_sender
+
+                        email_body = f"""
+Jenis Mobil: {car_type}
+Nomor WhatsApp: {whatsapp_number}
+Lokasi Pengambilan: {pickup_location}
+Tanggal Pengambilan: {pickup_date}
+Lokasi Pengembalian: {return_location}
+Tanggal Pengembalian: {return_date}
+"""
+                        full_message = f"Subject: Pengajuan Sewa Mobil Baru\n\n{email_body}"
+                        context = ssl.create_default_context()
+
+                        with smtplib.SMTP_SSL("smtp.gmail.com", 465, context=context) as smtp:
+                            smtp.login(email_sender, email_password)
+                            smtp.sendmail(email_sender, email_receiver, full_message)
+                        
+                        st.success("🎉 Pengajuan sewa mobil berhasil! Kami akan segera menghubungi Anda.")
+
+                    except Exception as e:
+                        st.error(f"Pengajuan sewa gagal dikirim. Pastikan Anda telah mengatur `secrets.toml` dengan benar. Kesalahan: {e}")
                 else:
                     st.error("Mohon lengkapi semua data.")
         st.markdown('</div>', unsafe_allow_html=True)
@@ -849,7 +889,7 @@ def show_contact_us():
     st.markdown('<a id="hubungi-kami"></a>', unsafe_allow_html=True)
     st.markdown("<h2 class='section-title'>Hubungi Kami 📞</h2>", unsafe_allow_html=True)
     with st.container():
-        st.markdown('<div class="contact-form-container">', unsafe_allow_html=True)
+        st.markdown("<hr>", unsafe_allow_html=True)
         st.markdown("<h3>Kirimkan Pesan Anda</h3>", unsafe_allow_html=True)
         with st.form("contact_us_form"):
             col1, col2 = st.columns(2)
@@ -891,84 +931,124 @@ Pesan: {message}
                     st.error("Mohon lengkapi semua kolom yang wajib diisi.")
         st.markdown('</div>', unsafe_allow_html=True)
 
-def show_reviews():
-    """Menampilkan halaman ulasan pelanggan dan formulir penambahan ulasan."""
-    st.markdown('<a id="ulasan-kami"></a>', unsafe_allow_html=True)
-    st.markdown("<h2 class='section-title'>Ulasan Pelanggan ⭐</h2>", unsafe_allow_html=True)
-    st.markdown("<p style='text-align: center; font-size: 1.125rem; color: var(--secondary-text-color);'>Lihat apa kata pelanggan kami tentang pengalaman perjalanan mereka bersama Septem Tour!</p>", unsafe_allow_html=True)
     
-    cols = st.columns(3)
-    for i, review in enumerate(st.session_state.reviews):
-        with cols[i % 3]:
-            st.markdown(f"""
-            <div class="review-card">
-                <p style="font-weight: bold; margin-bottom: 0.5rem; color: var(--text-color);">{review['name']}</p>
-                <p style="font-style: italic; color: var(--secondary-text-color);">"{review['review']}"</p>
-            </div>
-            """, unsafe_allow_html=True)
-    
-    st.markdown("<h3 style='text-align: center; margin-top: 2rem; color: var(--text-color);'>Tambahkan Ulasan Anda</h3>", unsafe_allow_html=True)
-    with st.form("review_form"):
-        name_input = st.text_input("Nama Anda")
-        review_input = st.text_area("Ulasan Anda", height=100)
-        submitted = st.form_submit_button("Kirim Ulasan")
-
-        if submitted and name_input and review_input:
-            new_review = {"name": name_input, "review": review_input}
-            st.session_state.reviews.append(new_review)
-            st.success("Terima kasih! Ulasan Anda telah berhasil ditambahkan.")
-            st.experimental_rerun() # Rerun untuk memperbarui tampilan ulasan
-        elif submitted:
-            st.error("Mohon isi nama dan ulasan Anda.")
-
-def show_home_page():
-    """Menampilkan konten halaman utama."""
-    show_hero_section()
-    show_about_us()
-
-def show_footer():
-    """Menampilkan footer di bagian bawah halaman."""
     st.markdown("""
-    <div class="footer">
-        <div class="footer-logo">SEPTEM TOUR</div>
-        <p class="footer-text">Jalan Raya Tidar, Malang, Jawa Timur</p>
-        <div class="social-icons">
-            <a href="#"><i class="fab fa-facebook-f"></i></a>
-            <a href="#"><i class="fab fa-instagram"></i></a>
-            <a href="https://wa.me/6282233020807" target="_blank"><i class="fab fa-whatsapp"></i></a>
-        </div>
-        <p class="footer-copy">© 2024 Septem Tour. All rights reserved.</p>
+    <div style="text-align: center; margin-top: 3rem;">
+        <h3>Atau Hubungi Kami Melalui</h3>
+        <p style="font-size: 1.125rem; color: var(--secondary-text-color);">
+            <i class="fas fa-phone-alt"></i> Telepon: +62 822-3302-0807 <br>
+            <i class="fab fa-whatsapp"></i> WhatsApp: +62 822-3302-0807
+        </p>
     </div>
     """, unsafe_allow_html=True)
 
-# --- Main App Logic ---
-show_navbar()
+def show_reviews():
+    """Menampilkan halaman ulasan dengan ulasan dummy."""
+    st.markdown('<a id="ulasan-kami"></a>', unsafe_allow_html=True)
+    st.markdown("<h2 class='section-title'>Ulasan Pelanggan ⭐</h2>", unsafe_allow_html=True)
+    st.markdown("<p style='text-align: center; font-size: 1.125rem; color: var(--secondary-text-color);'>Pendapat mereka yang telah bepergian bersama kami.</p>", unsafe_allow_html=True)
+    
+    # Menampilkan ulasan dalam 2 kolom
+    cols = st.columns(2)
+    for i, review in enumerate(st.session_state.reviews):
+        with cols[i % 2]:
+            st.markdown(f"""
+            <div class="review-card">
+                <p>"{review['review']}"</p>
+                <p style="font-style: italic; font-weight: 600;">- {review['name']}</p>
+            </div>
+            """, unsafe_allow_html=True)
 
-# Dapatkan halaman dari query params atau session state
-if 'page' in st.query_params:
-    st.session_state.current_page = st.query_params['page']
-    if st.session_state.current_page == 'detail_tour' and 'tour_id' in st.query_params:
+    with st.expander("Tambahkan Ulasan Anda"):
+        with st.form("add_review_form"):
+            review_name = st.text_input("Nama Anda", key="review_name")
+            review_text = st.text_area("Tulis ulasan Anda di sini...", key="review_text")
+            submit_review = st.form_submit_button("Kirim Ulasan")
+            if submit_review:
+                if review_name and review_text:
+                    st.session_state.reviews.append({"name": review_name, "review": review_text})
+                    st.success("Terima kasih, ulasan Anda berhasil ditambahkan!")
+                    st.experimental_rerun()
+                else:
+                    st.error("Nama dan ulasan tidak boleh kosong.")
+
+def send_email(name, email, subject, message):
+    """Fungsi dummy untuk mengirim email (implementasi perlu disesuaikan)."""
+    # Ganti dengan kredensial email Anda
+    sender_email = "your-email@gmail.com"
+    receiver_email = "asktourtravel382@gmail.com"
+    password = "your-app-password"  # Gunakan App Password jika menggunakan Gmail
+
+    # Buat pesan email
+    email_message = f"""
+    Subject: {subject}
+    From: {email}
+
+    Pesan dari {name} ({email}):
+
+    {message}
+    """
+    
+    try:
+        context = ssl.create_default_context()
+        with smtplib.SMTP_SSL("smtp.gmail.com", 465, context=context) as server:
+            server.login(sender_email, password)
+            server.sendmail(sender_email, receiver_email, email_message)
+    except Exception as e:
+        st.error(f"Gagal mengirim email: {e}")
+
+# --- Fungsi utama untuk render halaman ---
+def main():
+    if 'current_page' in st.query_params:
+        st.session_state.current_page = st.query_params['current_page']
+    if 'tour_id' in st.query_params:
         st.session_state.selected_tour = st.query_params['tour_id']
 
-# Konten utama
-st.markdown('<div class="content-container">', unsafe_allow_html=True)
+    # Terapkan kelas CSS untuk dark mode
+    if st.session_state.theme == 'dark':
+        st.markdown('<body class="dark-mode">', unsafe_allow_html=True)
+    else:
+        st.markdown('<body class="">', unsafe_allow_html=True)
 
-if st.session_state.current_page == 'home':
-    show_home_page()
-    show_tour_packages()
-elif st.session_state.current_page == 'tour_packages':
-    show_tour_packages()
-elif st.session_state.current_page == 'detail_tour':
-    show_tour_detail(st.session_state.selected_tour)
-elif st.session_state.current_page == 'rent_car':
-    show_rent_car()
-elif st.session_state.current_page == 'gallery':
-    show_gallery()
-elif st.session_state.current_page == 'contact_us':
-    show_contact_us()
-elif st.session_state.current_page == 'reviews':
-    show_reviews()
+    show_navbar()
 
-st.markdown('</div>', unsafe_allow_html=True)
+    if st.session_state.current_page == 'home':
+        show_hero_section()
+        st.markdown("---")
+        show_about_us()
+        st.markdown("---")
+        show_tour_packages()
+    elif st.session_state.current_page == 'tour_packages':
+        show_tour_packages()
+    elif st.session_state.current_page == 'detail_tour':
+        show_tour_detail(st.session_state.selected_tour)
+    elif st.session_state.current_page == 'rent_car':
+        show_rent_car()
+    elif st.session_state.current_page == 'gallery':
+        show_gallery()
+    elif st.session_state.current_page == 'contact_us':
+        show_contact_us()
+    elif st.session_state.current_page == 'reviews':
+        show_reviews()
 
-show_footer()
+    # Footer
+    st.markdown("""
+    <div class="footer">
+        <div class="footer-logo">ASK TOUR</div>
+        <p class="footer-text">
+            Jelajahi keindahan Indonesia bersama kami.
+        </p>
+        <div class="social-icons">
+            <a href="#"><i class="fab fa-facebook-f"></i></a>
+            <a href="#"><i class="fab fa-instagram"></i></a>
+            <a href="#"><i class="fab fa-twitter"></i></a>
+            <a href="#"><i class="fab fa-linkedin-in"></i></a>
+        </div>
+        <p class="footer-copy">
+            © 2024 ASK Tour & Travel. All rights reserved.
+        </p>
+    </div>
+    """, unsafe_allow_html=True)
+
+if __name__ == "__main__":
+    main()
