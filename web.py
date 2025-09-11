@@ -622,7 +622,7 @@ def show_navbar():
     with col_logo:
      st.markdown("""
         <div style="display: flex; align-items: center; gap: 50px;">
-            <img src="https://raw.githubusercontent.com/tourandtravel382/tourandtravel/main/images/ASKLOGOBLUE.png" alt="Logo" style="height:50px; width:150px;">
+            <img src="https://raw.githubusercontent.com/tourandtravel382/tourandtravel/main/images/ASKLOGOBLUE.png" alt="Logo" style="height:50px; width:50px;">
         </div>
     """, unsafe_allow_html=True)
     # Bagian Python untuk menampilkan gambar
@@ -1052,3 +1052,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
