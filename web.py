@@ -662,7 +662,7 @@ def show_hero_section():
     <div class="hero-section">
         <div class="hero-overlay"></div>
         <div class="hero-content">
-            <h1 class="hero-title">Selamat Datang di<br>ASK Tour.</h1>
+            <h1 class="hero-title">Selamat Datang di<br>ASK HOLIDAY.</h1>
             <h3 style="margin-top: -1rem; margin-bottom: 2rem; color: white;">Mulai Perjalanan Anda</h3>
             
     """, unsafe_allow_html=True)
@@ -1052,5 +1052,6 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
 
