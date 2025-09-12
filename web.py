@@ -783,7 +783,7 @@ def show_tour_detail(tour_id):
             <div class="detail-card">
                 <h3>Pesan Sekarang</h3>
                 <p>Untuk memesan paket ini, silakan hubungi kami melalui WhatsApp dengan menekan tombol di bawah ini.</p>
-                <a href="https://wa.me/6282233020807?text=Halo%20ASK%20Tour,%20saya%20tertarik%20dengan%20paket%20{package['nama']}.%20Mohon%20info%20lebih%20lanjut." target="_blank" class="tour-card-btn" style="display: block; width: fit-content; margin: 1rem auto;">Pesan Sekarang Melalui WhatsApp</a>
+                <a href="https://wa.me/62822330208?text=Halo%20ASK%20Tour,%20saya%20tertarik%20dengan%20paket%20{package['nama']}.%20Mohon%20info%20lebih%20lanjut." target="_blank" class="tour-card-btn" style="display: block; width: fit-content; margin: 1rem auto;">Pesan Sekarang Melalui WhatsApp</a>
             </div>
             """, unsafe_allow_html=True)
 
@@ -1052,4 +1052,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
